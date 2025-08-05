@@ -87,10 +87,13 @@ export default {
         },
       },
       
-      // Custom fonts
+      // Custom fonts - Updated with better Hebrew fonts
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        hebrew: ['Heebo', 'Inter', 'system-ui', 'sans-serif'],
+        hebrew: ['Rubik', 'Heebo', 'Assistant', 'Varela Round', 'Inter', 'system-ui', 'sans-serif'],
+        'hebrew-display': ['David Libre', 'Frank Ruhl Libre', 'Rubik', 'Heebo', 'system-ui', 'sans-serif'],
+        'hebrew-ui': ['Assistant', 'Varela Round', 'Secular One', 'system-ui', 'sans-serif'],
+        'hebrew-nav': ['David Libre', 'Frank Ruhl Libre', 'Assistant', 'system-ui', 'sans-serif'],
         display: ['Inter', 'system-ui', 'sans-serif'],
       },
       

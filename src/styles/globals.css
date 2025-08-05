@@ -16,9 +16,18 @@
  * Version: 1.0.0
  */
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+/* Import Hebrew fonts from GitHub repository - MUST come before @tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=David+Libre:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Secular+One&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* CSS Variables for consistent theming */
 :root {
@@ -52,9 +61,12 @@
   --color-error: #ef4444;
   --color-info: #3b82f6;
   
-  /* Typography */
+  /* Typography - Updated with better Hebrew fonts */
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-family-hebrew: 'Heebo', 'Inter', sans-serif;
+  --font-family-hebrew: 'Rubik', 'Heebo', 'Assistant', 'Varela Round', 'Inter', sans-serif;
+  --font-family-hebrew-display: 'David Libre', 'Frank Ruhl Libre', 'Rubik', 'Heebo', sans-serif;
+  --font-family-hebrew-ui: 'Assistant', 'Varela Round', 'Secular One', sans-serif;
+  --font-family-hebrew-nav: 'David Libre', 'Frank Ruhl Libre', 'Assistant', sans-serif;
   
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -112,36 +124,42 @@ body {
   text-align: left;
 }
 
-/* Typography */
+/* Typography - Enhanced Hebrew typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-hebrew-display);
 }
 
 h1 {
   font-size: 2.5rem;
   font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 h2 {
   font-size: 2rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 h3 {
   font-size: 1.5rem;
   font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 h4 {
   font-size: 1.25rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 h5 {
   font-size: 1.125rem;
   font-weight: 600;
+  letter-spacing: -0.005em;
 }
 
 h6 {
@@ -151,6 +169,7 @@ h6 {
 
 p {
   margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-hebrew-ui);
 }
 
 /* Links */
@@ -158,6 +177,7 @@ a {
   color: var(--color-primary-600);
   text-decoration: none;
   transition: color var(--transition-fast);
+  font-family: var(--font-family-hebrew-ui);
 }
 
 a:hover {
@@ -178,6 +198,7 @@ a:hover {
   border: none;
   font-size: 1rem;
   line-height: 1.5;
+  font-family: var(--font-family-hebrew-ui);
 }
 
 .btn:disabled {
@@ -228,6 +249,7 @@ a:hover {
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
   color: var(--color-gray-700);
+  font-family: var(--font-family-hebrew-ui);
 }
 
 .form-input {
@@ -238,6 +260,7 @@ a:hover {
   font-size: 1rem;
   transition: border-color var(--transition-fast);
   background-color: white;
+  font-family: var(--font-family-hebrew-ui);
 }
 
 .form-input:focus {
@@ -254,6 +277,7 @@ a:hover {
   color: var(--color-error);
   font-size: 0.875rem;
   margin-top: var(--spacing-xs);
+  font-family: var(--font-family-hebrew-ui);
 }
 
 /* Cards */
@@ -278,10 +302,12 @@ a:hover {
   font-weight: 600;
   color: var(--color-gray-900);
   margin-bottom: var(--spacing-sm);
+  font-family: var(--font-family-hebrew-display);
 }
 
 .card-body {
   color: var(--color-gray-700);
+  font-family: var(--font-family-hebrew-ui);
 }
 
 /* Loading Spinner */
@@ -320,6 +346,65 @@ a:hover {
 
 .ltr {
   direction: ltr;
+}
+
+/* Enhanced Hebrew font utilities */
+.font-hebrew {
+  font-family: var(--font-family-hebrew);
+}
+
+.font-hebrew-display {
+  font-family: var(--font-family-hebrew-display);
+}
+
+.font-hebrew-ui {
+  font-family: var(--font-family-hebrew-ui);
+}
+
+.font-hebrew-nav {
+  font-family: var(--font-family-hebrew-nav);
+}
+
+/* Navigation specific styles */
+.nav-link {
+  font-family: var(--font-family-hebrew-nav);
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+.nav-link:hover {
+  transform: translateY(-1px);
+}
+
+/* Enhanced navigation styling */
+.nav-item {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+.nav-item.active::after {
+  width: 100%;
+  background: linear-gradient(90deg, #2563eb, #1e40af);
 }
 
 /* Responsive Utilities */
