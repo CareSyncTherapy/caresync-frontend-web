@@ -26,6 +26,10 @@ import RegisterPage from '@pages/RegisterPage'
 import TherapistListPage from '@pages/TherapistListPage'
 import TherapistDetailPage from '@pages/TherapistDetailPage'
 import ProfilePage from '@pages/ProfilePage'
+import BlogPage from '@pages/BlogPage'
+import BlogPostPage from '@pages/BlogPostPage'
+import TopicPage from '@pages/TopicPage'
+import ForumPage from '@pages/ForumPage'
 import NotFoundPage from '@pages/NotFoundPage'
 
 // Import layout components
@@ -68,6 +72,10 @@ const App: React.FC = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/therapists" element={<TherapistListPage />} />
             <Route path="/therapists/:id" element={<TherapistDetailPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
+            <Route path="/topic/:slug" element={<TopicPage />} />
+            <Route path="/forum" element={<ForumPage />} />
 
             {/* Protected Routes */}
             <Route

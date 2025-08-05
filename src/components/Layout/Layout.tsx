@@ -1,23 +1,22 @@
 // src/components/Layout.tsx
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '@store/authStore'
-import { LogOut, Home, Users, LogIn } from 'lucide-react'
+
+import { Home, Users, LogIn, FileText, MessageSquare } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { isAuthenticated, user, logout } = useAuth()
   const location = useLocation()
 
   const navigation = [
     {
-      name: 'התחברות/הרשמה',
-      href: '/login',
-      icon: LogIn,
-      description: 'כניסה למערכת',
+      name: 'בית',
+      href: '/',
+      icon: Home,
+      description: 'דף הבית',
     },
     {
       name: 'מטפלים',
@@ -26,30 +25,52 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       description: 'רשימת מטפלים',
     },
     {
-      name: 'בית',
-      href: '/',
-      icon: Home,
-      description: 'דף הבית',
+      name: 'בלוג',
+      href: '/blog',
+      icon: FileText,
+      description: 'מאמרים ומידע',
+    },
+    {
+      name: 'פורום',
+      href: '/forum',
+      icon: MessageSquare,
+      description: 'קהילה ותמיכה',
+    },
+    {
+      name: 'התחברות/הרשמה',
+      href: '/login',
+      icon: LogIn,
+      description: 'כניסה למערכת',
     },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* HEADER */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-end items-center h-16">
-            <nav dir="rtl" className="flex flex-row-reverse items-center list-none m-0 p-0 w-full justify-end">
-              {navigation.map((item, index) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className="px-6 py-3 bg-blue-100 text-blue-800 rounded font-hebrew-nav"
-                  style={{ marginLeft: index > 0 ? '2rem' : '0' }}
-                >
-                  {item.name}
-                </Link>
-              ))}
+          <div className="flex items-center h-16" dir="rtl">
+            {/* Navigation */}
+            <nav className="flex items-center list-none m-0 p-0 w-full justify-center">
+              {navigation.map((item, index) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={`px-4 py-3 rounded-lg font-hebrew-nav transition-all duration-300 flex items-center space-x-2 space-x-reverse hover:transform hover:-translate-y-1 ${
+                      isActive
+                        ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm'
+                        : 'text-white/90 hover:text-white hover:bg-white/10 shadow-md hover:shadow-lg backdrop-blur-sm'
+                    }`}
+                    style={{ marginRight: index > 0 ? '1rem' : '0' }}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                )
+              })}
             </nav>
           </div>
         </div>
