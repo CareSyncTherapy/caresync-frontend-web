@@ -1,0 +1,16 @@
+{
+  "name": "CareSync - בריאות נפשית לכולם",
+  "short_name": "CareSync",
+  "description": "פלטפורמה מקיפה המחברת בין מטופלים למטפלים מוסמכים בישראל",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+} 
