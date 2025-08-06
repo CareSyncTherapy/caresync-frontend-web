@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { BlogPost, ForumCategory, Topic, Post } from '../types/blog'
-import { apiClient } from '../api/client'
+import { apiClient, api } from '../api/client'
 
 
 interface BlogStore {
@@ -747,6 +747,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     testApiConnection: async () => {
       try {
         console.log('Testing API connection...')
+        console.log('Current API base URL:', (api as any).defaults?.baseURL)
+        
         const response = await apiClient.get('/topics')
         console.log('API connection successful:', response.length, 'topics found')
         
@@ -768,7 +770,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           message: error.message,
           response: error.response?.data,
           status: error.response?.status,
-          config: error.config
+          config: error.config,
+          url: error.config?.url,
+          baseURL: error.config?.baseURL
         })
         return false
       }
