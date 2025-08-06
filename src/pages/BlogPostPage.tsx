@@ -4,10 +4,11 @@ import { FileText, Calendar, User, Tag, MessageSquare,
          TrendingUp, Clock, Heart, ArrowRight, Plus } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
 import TopicForm from '@components/UI/TopicForm'
+import toast from 'react-hot-toast'
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { getBlogPostBySlug, addTopicToCategory, addPostToTopic } = useBlogStore()
+  const { getBlogPostBySlug, addTopicToCategory, addPostToTopic, isLoading, error } = useBlogStore()
   const [showTopicForm, setShowTopicForm] = useState(false)
   const [newPostContent, setNewPostContent] = useState('')
   const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null)
@@ -32,48 +33,60 @@ const BlogPostPage: React.FC = () => {
     )
   }
 
-  const handleAddTopic = (topicData: { title: string; content: string; tags: string[] }) => {
-    console.log('Creating new topic with data:', topicData) // Debug log
-    
-    const newTopic = {
-      id: Date.now(),
-      title: topicData.title,
-      content: topicData.content,
-      author: 'משתמש אנונימי',
-      date: new Date().toLocaleDateString('he-IL'),
-      tags: topicData.tags,
-      replies: 0,
-      views: 0,
-      lastActivity: 'עכשיו',
-      category: blogPost.forumCategory.name,
-      isHot: false,
-      posts: [],
-      upvotes: 0,
-      downvotes: 0,
-      slug: topicData.title.toLowerCase().replace(/\s+/g, '-')
-    }
+  const handleAddTopic = async (topicData: { title: string; content: string; tags: string[] }) => {
+    try {
+      console.log('Creating new topic with data:', topicData) // Debug log
+      
+      const newTopic = {
+        id: Date.now(),
+        title: topicData.title,
+        content: topicData.content,
+        author: 'משתמש אנונימי',
+        date: new Date().toLocaleDateString('he-IL'),
+        tags: topicData.tags,
+        replies: 0,
+        views: 0,
+        lastActivity: 'עכשיו',
+        category: blogPost.forumCategory.name,
+        isHot: false,
+        posts: [],
+        upvotes: 0,
+        downvotes: 0,
+        slug: topicData.title.toLowerCase().replace(/\s+/g, '-')
+      }
 
-    console.log('New topic object:', newTopic) // Debug log
-    addTopicToCategory(blogPost.forumCategory.id, newTopic)
-    setShowTopicForm(false)
+      console.log('New topic object:', newTopic) // Debug log
+      await addTopicToCategory(blogPost.forumCategory.id, newTopic)
+      setShowTopicForm(false)
+      toast.success('נושא חדש נוצר בהצלחה!')
+    } catch (error: any) {
+      console.error('Error creating topic:', error)
+      toast.error(error.message || 'שגיאה ביצירת הנושא')
+    }
   }
 
-  const handleAddPost = () => {
+  const handleAddPost = async () => {
     if (!newPostContent.trim() || !selectedTopicId) return
 
-    const newPost = {
-      id: Date.now(),
-      content: newPostContent,
-      author: 'משתמש אנונימי',
-      date: new Date().toLocaleDateString('he-IL'),
-      topicId: selectedTopicId,
-      upvotes: 0,
-      downvotes: 0
-    }
+    try {
+      const newPost = {
+        id: Date.now(),
+        content: newPostContent,
+        author: 'משתמש אנונימי',
+        date: new Date().toLocaleDateString('he-IL'),
+        topicId: selectedTopicId,
+        upvotes: 0,
+        downvotes: 0
+      }
 
-    addPostToTopic(selectedTopicId, newPost)
-    setNewPostContent('')
-    setSelectedTopicId(null)
+      await addPostToTopic(selectedTopicId, newPost)
+      setNewPostContent('')
+      setSelectedTopicId(null)
+      toast.success('תגובה נוספה בהצלחה!')
+    } catch (error: any) {
+      console.error('Error creating post:', error)
+      toast.error(error.message || 'שגיאה בהוספת התגובה')
+    }
   }
 
   return (
