@@ -26,7 +26,8 @@ const API_TIMEOUT = 30000 // 30 seconds
 console.log('API Configuration:', {
   VITE_API_URL: import.meta.env.VITE_API_URL,
   API_BASE_URL,
-  API_TIMEOUT
+  API_TIMEOUT,
+  timestamp: new Date().toISOString()
 })
 
 /**
@@ -38,6 +39,12 @@ const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+console.log('Axios instance created with:', {
+  baseURL: api.defaults.baseURL,
+  timeout: api.defaults.timeout,
+  headers: api.defaults.headers
 })
 
 /**
