@@ -157,8 +157,83 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         set({ isLoading: true, error: null })
         
-        // Fetch forums from backend
-        const response = await apiClient.get('/forums')
+        console.log('Fetching forums from backend...')
+        
+        // Try to fetch forums from backend
+        let response
+        try {
+          response = await apiClient.get('/forums')
+          console.log('Forums response:', response)
+        } catch (forumError: any) {
+          console.warn('Forums endpoint not available, using fallback categories')
+          
+          // Fallback to hardcoded categories if forums endpoint doesn't exist
+          const fallbackForums: ForumCategory[] = [
+            {
+              id: 34,
+              name: 'חרדה ודיכאון',
+              description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
+              icon: '😰',
+              topics: [],
+              totalPosts: 0,
+              totalTopics: 0
+            },
+            {
+              id: 35,
+              name: 'טכניקות הרגעה',
+              description: 'שיטות וטכניקות להרגעה וניהול מתח',
+              icon: '🧘‍♀️',
+              topics: [],
+              totalPosts: 0,
+              totalTopics: 0
+            }
+          ]
+          
+          set({
+            forumCategories: fallbackForums,
+            isLoading: false
+          })
+          return
+        }
+        
+        // Check if response is an array or has forums property
+        if (!Array.isArray(response)) {
+          console.warn('Forums response is not an array:', response)
+          
+          // If response is an object with forums property, use that
+          if (response && typeof response === 'object' && response.forums) {
+            response = response.forums
+            console.log('Extracted forums from response:', response)
+          } else {
+            // Fallback to hardcoded categories
+            const fallbackForums: ForumCategory[] = [
+              {
+                id: 34,
+                name: 'חרדה ודיכאון',
+                description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
+                icon: '😰',
+                topics: [],
+                totalPosts: 0,
+                totalTopics: 0
+              },
+              {
+                id: 35,
+                name: 'טכניקות הרגעה',
+                description: 'שיטות וטכניקות להרגעה וניהול מתח',
+                icon: '🧘‍♀️',
+                topics: [],
+                totalPosts: 0,
+                totalTopics: 0
+              }
+            ]
+            
+            set({
+              forumCategories: fallbackForums,
+              isLoading: false
+            })
+            return
+          }
+        }
         
         // Transform backend forums to frontend format
         const transformedForums: ForumCategory[] = response.map((forum: any) => ({
@@ -171,6 +246,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           totalTopics: 0
         }))
 
+        console.log('Transformed forums:', transformedForums)
+        
         set({
           forumCategories: transformedForums,
           isLoading: false
@@ -193,7 +270,20 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         await get().fetchForums()
         
         // Then fetch topics from backend
-        const response = await apiClient.get('/topics')
+        let response
+        try {
+          response = await apiClient.get('/topics')
+          console.log('Topics response:', response)
+        } catch (topicError: any) {
+          console.warn('Topics endpoint not available, using empty array')
+          response = []
+        }
+        
+        // Check if response is an array
+        if (!Array.isArray(response)) {
+          console.warn('Topics response is not an array:', response)
+          response = []
+        }
         
         // Transform the backend response to match our frontend format
         const transformedTopics = response.map((topic: any) => ({
@@ -560,7 +650,20 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         set({ isLoading: true, error: null })
         
-        const response = await apiClient.get('/topics')
+        let response
+        try {
+          response = await apiClient.get('/topics')
+          console.log('FetchTopics response:', response)
+        } catch (topicError: any) {
+          console.warn('Topics endpoint not available, using empty array')
+          response = []
+        }
+        
+        // Check if response is an array
+        if (!Array.isArray(response)) {
+          console.warn('Topics response is not an array:', response)
+          response = []
+        }
         
         // Transform the backend response to match our frontend format
         const transformedTopics = response.map((topic: any) => ({
