@@ -748,6 +748,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         console.log('Testing API connection...')
         console.log('Current API base URL:', (api as any).defaults?.baseURL)
+        console.log('Current window location:', window.location.href)
         
         const response = await apiClient.get('/topics')
         console.log('API connection successful:', response.length, 'topics found')
@@ -772,7 +773,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           status: error.response?.status,
           config: error.config,
           url: error.config?.url,
-          baseURL: error.config?.baseURL
+          baseURL: error.config?.baseURL,
+          fullUrl: error.config?.baseURL + error.config?.url
         })
         return false
       }

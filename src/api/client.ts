@@ -1,30 +1,26 @@
 /**
- * CareSync API Client Configuration
+ * API Client Configuration for CareSync Frontend
  * 
- * Axios-based API client for communicating with the CareSync backend.
- * Includes request/response interceptors, authentication handling,
- * and error management.
+ * This module configures the Axios HTTP client for making API calls to the backend.
+ * It includes request/response interceptors for authentication, logging, and error handling.
  * 
  * Features:
- * - Automatic token injection
- * - Request/response interceptors
- * - Error handling and retry logic
- * - Request/response logging
- * - Timeout configuration
+ * - Automatic authentication token injection
+ * - Request/response logging (development only)
+ * - Error handling and logging
+ * - Cache-busting for development
  * 
  * Author: CareSync Development Team
- * Version: 1.0.0
+ * Version: 2.0.0
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import toast from 'react-hot-toast'
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosRequestConfig } from 'axios'
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const API_BASE_URL = '/api' // Use proxy
 const API_TIMEOUT = 30000 // 30 seconds
 
 console.log('API Configuration:', {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
   API_BASE_URL,
   API_TIMEOUT,
   timestamp: new Date().toISOString()
@@ -38,6 +34,7 @@ const api: AxiosInstance = axios.create({
   timeout: API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
+    'X-API-Version': '2.0.0',
   },
 })
 
@@ -57,6 +54,11 @@ api.interceptors.request.use(
     const token = localStorage.getItem('caresync_token')
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    
+    // Add cache-busting parameter to force fresh requests
+    if (config.url && !config.url.includes('?')) {
+      config.url = `${config.url}?_t=${Date.now()}`
     }
     
     // Log request (development only)
@@ -89,7 +91,7 @@ api.interceptors.request.use(
  * Handles common response patterns and errors
  */
 api.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response) => {
     // Log response (development only)
     if (import.meta.env.DEV) {
       console.log(`✅ API Response: ${response.status} ${response.config.url}`)
@@ -118,7 +120,7 @@ api.interceptors.response.use(
           delete api.defaults.headers.common['Authorization']
           
           // Show error message
-          toast.error('Session expired. Please login again.')
+          // toast.error('Session expired. Please login again.') // Removed toast as per new_code
           
           // Redirect to login page
           window.location.href = '/login'
@@ -126,45 +128,45 @@ api.interceptors.response.use(
           
         case 403:
           // Forbidden
-          toast.error('You do not have permission to perform this action.')
+          // toast.error('You do not have permission to perform this action.') // Removed toast as per new_code
           break
           
         case 404:
           // Not found
-          toast.error('The requested resource was not found.')
+          // toast.error('The requested resource was not found.') // Removed toast as per new_code
           break
           
         case 422:
           // Validation error
           const validationErrors = response.data?.errors || response.data?.error
           if (Array.isArray(validationErrors)) {
-            validationErrors.forEach((err: string) => toast.error(err))
+            validationErrors.forEach((err: string) => console.error(err)) // Changed toast to console.error
           } else {
-            toast.error(validationErrors || 'Validation failed.')
+            console.error(validationErrors || 'Validation failed.') // Changed toast to console.error
           }
           break
           
         case 429:
           // Rate limited
-          toast.error('Too many requests. Please try again later.')
+          // toast.error('Too many requests. Please try again later.') // Removed toast as per new_code
           break
           
         case 500:
           // Server error
-          toast.error('Server error. Please try again later.')
+          // toast.error('Server error. Please try again later.') // Removed toast as per new_code
           break
           
         default:
           // Other errors
           const errorMessage = response.data?.error || 'An error occurred.'
-          toast.error(errorMessage)
+          console.error(errorMessage) // Changed toast to console.error
       }
     } else if (error.code === 'ECONNABORTED') {
       // Request timeout
-      toast.error('Request timeout. Please check your connection.')
+      // toast.error('Request timeout. Please check your connection.') // Removed toast as per new_code
     } else if (!error.response) {
       // Network error
-      toast.error('Network error. Please check your connection.')
+      // toast.error('Network error. Please check your connection.') // Removed toast as per new_code
     }
     
     return Promise.reject(error)
