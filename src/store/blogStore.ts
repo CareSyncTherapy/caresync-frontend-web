@@ -422,7 +422,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         const createdTopic = response
 
         // Refresh topics to get updated data from backend
+        console.log('About to refresh topics after creating topic...')
         await get().fetchTopics()
+        console.log('Topics refreshed after creating topic')
 
         set({ isLoading: false })
       } catch (error: any) {
@@ -686,18 +688,30 @@ export const useBlogStore = create<BlogStore>((set, get) => {
 
         // Group topics by category using dynamic forum names
         const categoryMap = new Map()
+        console.log('Transformed topics:', transformedTopics.length)
+        console.log('Sample topics:', transformedTopics.slice(0, 3))
+        
         transformedTopics.forEach((topic: any) => {
           const categoryName = topic.category
+          console.log(`Topic ${topic.id} (${topic.title}) has category: "${categoryName}"`)
+          
           if (!categoryMap.has(categoryName)) {
             categoryMap.set(categoryName, [])
           }
           categoryMap.get(categoryName).push(topic)
         })
+        
+        console.log('Category map keys:', Array.from(categoryMap.keys()))
+        console.log('Topics in חרדה ודיכאון:', categoryMap.get('חרדה ודיכאון')?.length || 0)
 
         // Update forum categories with backend data
         set(state => {
+          console.log('Current forum categories:', state.forumCategories.map(c => c.name))
+          
           const updatedForumCategories = state.forumCategories.map(category => {
             const backendTopics = categoryMap.get(category.name) || []
+            console.log(`Category "${category.name}" will have ${backendTopics.length} topics`)
+            
             const totalPosts = backendTopics.reduce((sum: number, topic: any) => 
               sum + (topic.posts?.length || 0), 0)
             

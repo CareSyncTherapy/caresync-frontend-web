@@ -71,6 +71,8 @@ api.interceptors.request.use(
         headers: config.headers,
         data: config.data
       })
+      console.log('Full URL:', `${config.baseURL}${config.url}`)
+      console.log('Current window location:', window.location.href)
     }
     
     return config
@@ -95,6 +97,8 @@ api.interceptors.response.use(
     // Log response (development only)
     if (import.meta.env.DEV) {
       console.log(`✅ API Response: ${response.status} ${response.config.url}`)
+      console.log('Response data type:', typeof response.data)
+      console.log('Response data preview:', JSON.stringify(response.data).substring(0, 200))
     }
     
     return response
