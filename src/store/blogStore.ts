@@ -21,7 +21,7 @@ interface BlogStore {
   getRecentTopics: () => Topic[]
   fetchTopics: () => Promise<void>
   fetchPosts: (topicId: number) => Promise<void>
-  fetchForums: () => Promise<void>
+  
   clearError: () => void
   testApiConnection: () => Promise<boolean>
   initializeStore: () => Promise<void>
@@ -153,123 +153,11 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     isLoading: false,
     error: null,
 
-    fetchForums: async () => {
-      try {
-        set({ isLoading: true, error: null })
-        
-        console.log('Fetching forums from backend...')
-        
-        // Try to fetch forums from backend
-        let response
-        try {
-          response = await apiClient.get('/forums')
-          console.log('Forums response:', response)
-        } catch (forumError: any) {
-          console.warn('Forums endpoint not available, using fallback categories')
-          
-          // Fallback to hardcoded categories if forums endpoint doesn't exist
-          const fallbackForums: ForumCategory[] = [
-            {
-              id: 34,
-              name: 'חרדה ודיכאון',
-              description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
-              icon: '😰',
-              topics: [],
-              totalPosts: 0,
-              totalTopics: 0
-            },
-            {
-              id: 35,
-              name: 'טכניקות הרגעה',
-              description: 'שיטות וטכניקות להרגעה וניהול מתח',
-              icon: '🧘‍♀️',
-              topics: [],
-              totalPosts: 0,
-              totalTopics: 0
-            }
-          ]
-          
-          set({
-            forumCategories: fallbackForums,
-            isLoading: false
-          })
-          return
-        }
-        
-        // Check if response is an array or has forums property
-        if (!Array.isArray(response)) {
-          console.warn('Forums response is not an array:', response)
-          
-          // If response is an object with forums property, use that
-          if (response && typeof response === 'object' && response.forums) {
-            response = response.forums
-            console.log('Extracted forums from response:', response)
-          } else {
-            // Fallback to hardcoded categories
-            const fallbackForums: ForumCategory[] = [
-              {
-                id: 34,
-                name: 'חרדה ודיכאון',
-                description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
-                icon: '😰',
-                topics: [],
-                totalPosts: 0,
-                totalTopics: 0
-              },
-              {
-                id: 35,
-                name: 'טכניקות הרגעה',
-                description: 'שיטות וטכניקות להרגעה וניהול מתח',
-                icon: '🧘‍♀️',
-                topics: [],
-                totalPosts: 0,
-                totalTopics: 0
-              }
-            ]
-            
-            set({
-              forumCategories: fallbackForums,
-              isLoading: false
-            })
-            return
-          }
-        }
-        
-        // Transform backend forums to frontend format
-        const transformedForums: ForumCategory[] = response.map((forum: any) => ({
-          id: forum.id,
-          name: forum.name,
-          description: forum.description || '',
-          icon: getForumIcon(forum.name),
-          topics: [],
-          totalPosts: 0,
-          totalTopics: 0
-        }))
-
-        console.log('Transformed forums:', transformedForums)
-        
-        set({
-          forumCategories: transformedForums,
-          isLoading: false
-        })
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.error || 'Failed to fetch forums'
-        set({ 
-          isLoading: false, 
-          error: errorMessage 
-        })
-        console.error('Error fetching forums:', error)
-      }
-    },
-
     initializeStore: async () => {
       try {
         set({ isLoading: true, error: null })
         
-        // First fetch forums to get dynamic categories
-        await get().fetchForums()
-        
-        // Then fetch topics from backend
+        // Fetch topics from backend
         let response
         try {
           response = await apiClient.get('/topics')
@@ -304,7 +192,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           slug: topic.slug || `topic-${topic.id}`
         }))
 
-        // Group topics by category using dynamic forum names
+        // Group topics by category
         const categoryMap = new Map()
         transformedTopics.forEach((topic: any) => {
           const categoryName = topic.category
@@ -314,22 +202,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           categoryMap.get(categoryName).push(topic)
         })
 
-        // Update forum categories with backend data
+        // Update blog posts with backend topics
         set(state => {
-          const updatedForumCategories = state.forumCategories.map(category => {
-            const backendTopics = categoryMap.get(category.name) || []
-            const totalPosts = backendTopics.reduce((sum: number, topic: any) => 
-              sum + (topic.posts?.length || 0), 0)
-            
-            return {
-              ...category,
-              topics: backendTopics,
-              totalTopics: backendTopics.length,
-              totalPosts: totalPosts
-            }
-          })
-
-          // Update blog posts with backend topics
           const updatedBlogPosts = state.blogPosts.map(post => {
             const backendTopics = categoryMap.get(post.forumCategory.name) || []
             return {
@@ -343,7 +217,6 @@ export const useBlogStore = create<BlogStore>((set, get) => {
 
           return {
             blogPosts: updatedBlogPosts,
-            forumCategories: updatedForumCategories,
             isLoading: false
           }
         })
@@ -522,7 +395,6 @@ export const useBlogStore = create<BlogStore>((set, get) => {
 
           return {
             blogPosts: updatedBlogPosts,
-            forumCategories: updatedForumCategories,
             isLoading: false
           }
         })
