@@ -180,6 +180,15 @@ const BlogPostPage: React.FC = () => {
               // Get topics from the forum category that matches this blog post
               const matchingCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
               const topicsToDisplay = matchingCategory?.topics || blogPost.topics
+              
+              // Debug logging
+              console.log('🔍 BlogPostPage Debug:')
+              console.log('blogPost.forumCategory.name:', blogPost.forumCategory.name)
+              console.log('forumCategories:', forumCategories)
+              console.log('matchingCategory:', matchingCategory)
+              console.log('topicsToDisplay:', topicsToDisplay)
+              console.log('topicsToDisplay.length:', topicsToDisplay.length)
+              
               return topicsToDisplay.map((topic) => (
                 <div
                 key={topic.id}
