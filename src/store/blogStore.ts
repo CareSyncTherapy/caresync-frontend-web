@@ -202,7 +202,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           categoryMap.get(categoryName).push(topic)
         })
 
-        // Update blog posts with backend topics
+        // Update blog posts and forum categories with backend topics
         set(state => {
           const updatedBlogPosts = state.blogPosts.map(post => {
             const backendTopics = categoryMap.get(post.forumCategory.name) || []
@@ -215,8 +215,21 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             }
           })
 
+          // Also update forum categories with the same topics
+          const updatedForumCategories = state.forumCategories.map(category => {
+            const backendTopics = categoryMap.get(category.name) || []
+            return {
+              ...category,
+              topics: backendTopics,
+              totalTopics: backendTopics.length,
+              totalPosts: backendTopics.reduce((sum: number, topic: any) => 
+                sum + (topic.posts?.length || 0), 0)
+            }
+          })
+
           return {
             blogPosts: updatedBlogPosts,
+            forumCategories: updatedForumCategories,
             isLoading: false
           }
         })
