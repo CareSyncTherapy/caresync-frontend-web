@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { FileText, Calendar, User, Tag, MessageSquare, 
          TrendingUp, Clock, Heart, ArrowRight, Plus } from 'lucide-react'
@@ -23,12 +23,10 @@ const BlogPostPage: React.FC = () => {
   const [newPostContent, setNewPostContent] = useState('')
   const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null)
 
-  const blogPost = slug ? getBlogPostBySlug(slug) : undefined
-
-  // Force re-render when blogPosts changes
-  useEffect(() => {
-    // This effect will run whenever blogPosts changes, ensuring the component re-renders
-  }, [blogPosts])
+  // Get the blog post reactively - this will update when blogPosts changes
+  const blogPost = useMemo(() => {
+    return slug ? getBlogPostBySlug(slug) : undefined
+  }, [slug, blogPosts, getBlogPostBySlug])
 
   useEffect(() => {
     // Load forum data from backend on component mount
@@ -178,8 +176,12 @@ const BlogPostPage: React.FC = () => {
 
           {/* Topics List */}
           <div className="space-y-6">
-            {blogPost.topics.map((topic) => (
-              <div
+            {(() => {
+              // Get topics from the forum category that matches this blog post
+              const matchingCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
+              const topicsToDisplay = matchingCategory?.topics || blogPost.topics
+              return topicsToDisplay.map((topic) => (
+                <div
                 key={topic.id}
                 className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
               >
@@ -271,10 +273,15 @@ const BlogPostPage: React.FC = () => {
                   </button>
                 )}
               </div>
-            ))}
+            ))
+            })()}
           </div>
 
-          {blogPost.topics.length === 0 && (
+          {(() => {
+            const matchingCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
+            const topicsToDisplay = matchingCategory?.topics || blogPost.topics
+            return topicsToDisplay.length === 0
+          })() && (
             <div className="text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2 font-hebrew-display">

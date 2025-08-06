@@ -1,13 +1,28 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Users, TrendingUp, Clock, Heart, MessageCircle } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
 import { formatRelativeTime } from '../utils/dateUtils'
 
 const ForumPage: React.FC = () => {
-  const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics, initializeStore, isLoading, error } = useBlogStore()
+  const { 
+    forumCategories, 
+    calculateCategoryStats, 
+    getTotalStats, 
+    getBlogPostByCategoryId, 
+    getRecentTopics, 
+    initializeStore, 
+    isLoading, 
+    error,
+    blogPosts
+  } = useBlogStore()
+  
   const totalStats = getTotalStats()
-  const recentTopics = getRecentTopics()
+  
+  // Make recentTopics reactive by recalculating when blogPosts changes
+  const recentTopics = useMemo(() => {
+    return getRecentTopics()
+  }, [blogPosts, getRecentTopics])
 
   useEffect(() => {
     // Load forum data from backend on component mount
