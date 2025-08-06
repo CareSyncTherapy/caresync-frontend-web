@@ -26,6 +26,7 @@ export default defineConfig({
   // Development server configuration
   server: {
     port: 3000,
+    strictPort: true, // Fail if port is not available
     host: true, // Allow external connections
     open: true, // Open browser on start
     
