@@ -9,12 +9,26 @@ import { formatRelativeTime } from '../utils/dateUtils'
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { getBlogPostBySlug, addTopicToCategory, addPostToTopic, initializeStore, isLoading, error } = useBlogStore()
+  const { 
+    getBlogPostBySlug, 
+    addTopicToCategory, 
+    addPostToTopic, 
+    initializeStore, 
+    isLoading, 
+    error,
+    blogPosts,
+    forumCategories
+  } = useBlogStore()
   const [showTopicForm, setShowTopicForm] = useState(false)
   const [newPostContent, setNewPostContent] = useState('')
   const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null)
 
   const blogPost = slug ? getBlogPostBySlug(slug) : undefined
+
+  // Force re-render when blogPosts changes
+  useEffect(() => {
+    // This effect will run whenever blogPosts changes, ensuring the component re-renders
+  }, [blogPosts])
 
   useEffect(() => {
     // Load forum data from backend on component mount
