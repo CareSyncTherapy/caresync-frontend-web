@@ -132,7 +132,13 @@ const ForumPage: React.FC = () => {
                         <span className="mr-4">{topic.replies} תגובות</span>
                         <span className="mr-4">{topic.views} צפיות</span>
                         <Clock className="w-4 h-4 mr-1" />
-                        <span>{topic.lastActivity}</span>
+                        <span>{new Date(topic.date).toLocaleDateString('he-IL', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 mr-4">
