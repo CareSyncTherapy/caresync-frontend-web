@@ -176,7 +176,11 @@ const BlogPostPage: React.FC = () => {
 
           {/* Topics List */}
           <div className="space-y-6">
-            {blogPost.topics.map((topic) => (
+            {(() => {
+              // Get topics from the forum category that matches this blog post
+              const matchingCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
+              const topicsToDisplay = matchingCategory?.topics || blogPost.topics
+              return topicsToDisplay.map((topic) => (
                 <div
                 key={topic.id}
                 className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
@@ -269,10 +273,15 @@ const BlogPostPage: React.FC = () => {
                   </button>
                 )}
               </div>
-            ))}
+            ))
+            })()}
           </div>
 
-          {blogPost.topics.length === 0 && (
+          {(() => {
+            const matchingCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
+            const topicsToDisplay = matchingCategory?.topics || blogPost.topics
+            return topicsToDisplay.length === 0
+          })() && (
             <div className="text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2 font-hebrew-display">
