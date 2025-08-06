@@ -21,6 +21,7 @@ interface BlogStore {
   getRecentTopics: () => Topic[]
   fetchTopics: () => Promise<void>
   fetchPosts: (topicId: number) => Promise<void>
+  fetchForums: () => Promise<void>
   clearError: () => void
   testApiConnection: () => Promise<boolean>
   initializeStore: () => Promise<void>
@@ -28,7 +29,7 @@ interface BlogStore {
 
 
 export const useBlogStore = create<BlogStore>((set, get) => {
-  // Initialize forum categories with correct counts from blog posts
+  // Initialize with empty data - will be populated dynamically
   const initializeForumCategories = () => {
     const blogPosts = [
       {
@@ -42,7 +43,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '5 דקות קריאה',
         slug: 'how-to-deal-with-social-anxiety',
         forumCategory: {
-          id: 1,
+          id: 0,
           name: 'חרדה ודיכאון',
           description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
           icon: '😰',
@@ -65,7 +66,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '4 דקות קריאה',
         slug: 'relaxation-techniques-for-daily-stress',
         forumCategory: {
-          id: 2,
+          id: 0,
           name: 'טכניקות הרגעה',
           description: 'שיטות וטכניקות להרגעה וניהול מתח',
           icon: '🧘‍♀️',
@@ -88,7 +89,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '6 דקות קריאה',
         slug: 'building-healthy-relationships',
         forumCategory: {
-          id: 3,
+          id: 0,
           name: 'יחסים ומשפחה',
           description: 'דיונים על יחסים, משפחה וקשרים בין-אישיים',
           icon: '👨‍👩‍👧‍👦',
@@ -111,7 +112,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '3 דקות קריאה',
         slug: 'mutual-support-in-community',
         forumCategory: {
-          id: 4,
+          id: 0,
           name: 'תמיכה הדדית',
           description: 'מרחב לתמיכה הדדית ושיתוף חוויות',
           icon: '🤝',
@@ -125,50 +126,26 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       }
     ]
 
-    // Calculate forum categories with correct counts from blog posts
-    const forumCategories = [
-      {
-        id: 1,
-        name: 'חרדה ודיכאון',
-        description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
-        icon: '😰',
-        topics: [],
-        totalPosts: 0,
-        totalTopics: 0
-      },
-      {
-        id: 2,
-        name: 'טכניקות הרגעה',
-        description: 'שיטות וטכניקות להרגעה וניהול מתח',
-        icon: '🧘‍♀️',
-        topics: [],
-        totalPosts: 0,
-        totalTopics: 0
-      },
-      {
-        id: 3,
-        name: 'יחסים ומשפחה',
-        description: 'דיונים על יחסים, משפחה וקשרים בין-אישיים',
-        icon: '👨‍👩‍👧‍👦',
-        topics: [],
-        totalPosts: 0,
-        totalTopics: 0
-      },
-      {
-        id: 4,
-        name: 'תמיכה הדדית',
-        description: 'מרחב לתמיכה הדדית ושיתוף חוויות',
-        icon: '🤝',
-        topics: [],
-        totalPosts: 0,
-        totalTopics: 0
-      }
-    ]
+    // Initialize empty forum categories - will be populated dynamically
+    const forumCategories: ForumCategory[] = []
 
     return { blogPosts, forumCategories }
   }
 
   const { blogPosts, forumCategories } = initializeForumCategories()
+
+  // Helper function to get forum icon based on name
+  const getForumIcon = (forumName: string): string => {
+    const iconMap: { [key: string]: string } = {
+      'חרדה ודיכאון': '😰',
+      'טכניקות הרגעה': '🧘‍♀️',
+      'יחסים ומשפחה': '👨‍👩‍👧‍👦',
+      'תמיכה הדדית': '🤝',
+      'General': '💬',
+      'Test Integration Forum': '🧪'
+    }
+    return iconMap[forumName] || '💬'
+  }
 
   return {
     blogPosts,
@@ -176,11 +153,46 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     isLoading: false,
     error: null,
 
+    fetchForums: async () => {
+      try {
+        set({ isLoading: true, error: null })
+        
+        // Fetch forums from backend
+        const response = await apiClient.get('/forums')
+        
+        // Transform backend forums to frontend format
+        const transformedForums: ForumCategory[] = response.map((forum: any) => ({
+          id: forum.id,
+          name: forum.name,
+          description: forum.description || '',
+          icon: getForumIcon(forum.name),
+          topics: [],
+          totalPosts: 0,
+          totalTopics: 0
+        }))
+
+        set({
+          forumCategories: transformedForums,
+          isLoading: false
+        })
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.error || 'Failed to fetch forums'
+        set({ 
+          isLoading: false, 
+          error: errorMessage 
+        })
+        console.error('Error fetching forums:', error)
+      }
+    },
+
     initializeStore: async () => {
       try {
         set({ isLoading: true, error: null })
         
-        // Fetch topics from backend
+        // First fetch forums to get dynamic categories
+        await get().fetchForums()
+        
+        // Then fetch topics from backend
         const response = await apiClient.get('/topics')
         
         // Transform the backend response to match our frontend format
@@ -202,16 +214,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           slug: topic.slug || `topic-${topic.id}`
         }))
 
-        // Group topics by category and map backend categories to frontend categories
+        // Group topics by category using dynamic forum names
         const categoryMap = new Map()
         transformedTopics.forEach((topic: any) => {
-          // Map backend categories to frontend categories
-          let categoryName = topic.category
-          if (categoryName === 'General') {
-            // Assign general topics to the first category for now
-            categoryName = 'חרדה ודיכאון'
-          }
-          
+          const categoryName = topic.category
           if (!categoryMap.has(categoryName)) {
             categoryMap.set(categoryName, [])
           }
@@ -270,7 +276,12 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     },
 
     getBlogPostByCategoryId: (categoryId: number) => {
-      return get().blogPosts.find(post => post.forumCategory.id === categoryId)
+      const state = get()
+      const category = state.forumCategories.find(cat => cat.id === categoryId)
+      if (!category) return undefined
+      
+      // Find blog post by matching forum category name
+      return state.blogPosts.find(post => post.forumCategory.name === category.name)
     },
 
     getTopicBySlug: (slug: string) => {
@@ -286,27 +297,29 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         set({ isLoading: true, error: null })
         
-        // Get the category name for the backend
+        // Get the category for the backend
         const state = get()
         const category = state.forumCategories.find(cat => cat.id === categoryId)
-        const categoryName = category?.name || 'General'
+        
+        if (!category) {
+          throw new Error('Category not found')
+        }
         
         console.log('Creating topic with data:', {
           title: topic.title,
           content: topic.content,
           author: topic.author,
           categoryId: categoryId,
-          categoryName: categoryName,
+          categoryName: category.name,
           tags: topic.tags
         })
         
-        // API call to create topic with simpler data format
+        // API call to create topic with forum ID from backend
         const topicData = {
           title: topic.title,
           content: topic.content,
           author: topic.author,
-          categoryId: categoryId,
-          category: categoryName,
+          categoryId: categoryId, // This is now the actual forum ID from backend
           tags: topic.tags || [],
           userId: 999 // Anonymous user ID
         }
@@ -318,42 +331,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         console.log('Topic created successfully:', response)
         const createdTopic = response
 
-        // Update local state
-        set(state => {
-          const updatedBlogPosts = state.blogPosts.map(post =>
-            post.forumCategory.id === categoryId
-              ? {
-                  ...post,
-                  topics: [...post.topics, createdTopic],
-                  totalTopics: post.topics.length + 1
-                }
-              : post
-          )
+        // Refresh topics to get updated data from backend
+        await get().fetchTopics()
 
-          const updatedForumCategories = state.forumCategories.map(category => {
-            if (category.id === categoryId) {
-              const relatedBlogPost = updatedBlogPosts.find(
-                post => post.forumCategory.id === categoryId
-              )
-              return {
-                ...category,
-                topics: [...category.topics, createdTopic],
-                totalTopics: relatedBlogPost ? relatedBlogPost.topics.length : 
-                  category.topics.length + 1,
-                totalPosts: relatedBlogPost ? 
-                  relatedBlogPost.topics.reduce((sum, topic) => 
-                    sum + topic.posts.length, 0) : category.totalPosts
-              }
-            }
-            return category
-          })
-
-          return {
-            blogPosts: updatedBlogPosts,
-            forumCategories: updatedForumCategories,
-            isLoading: false
-          }
-        })
+        set({ isLoading: false })
       } catch (error: any) {
         console.error('Error creating topic:', error)
         
@@ -393,11 +374,16 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         } catch (postError: any) {
           // If posts endpoint doesn't exist, try creating a reply as a new topic
           console.warn('Posts endpoint not found, creating as new topic')
+          // Get the first available forum as default
+          const state = get()
+          const defaultCategory = state.forumCategories[0]
+          const defaultCategoryId = defaultCategory ? defaultCategory.id : 1
+          
           response = await apiClient.post('/topics', {
             title: `Reply to topic ${topicId}`,
             content: post.content,
             author: post.author,
-            categoryId: 1, // Default category
+            categoryId: defaultCategoryId,
             tags: ['reply'],
             userId: 999 // Anonymous user ID
           })
@@ -595,7 +581,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           slug: topic.slug || `topic-${topic.id}`
         }))
 
-        // Group topics by category
+        // Group topics by category using dynamic forum names
         const categoryMap = new Map()
         transformedTopics.forEach((topic: any) => {
           const categoryName = topic.category
@@ -693,11 +679,17 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         
         // Test creating a simple topic
         console.log('Testing topic creation...')
+        
+        // Get the first available forum as default
+        const state = get()
+        const defaultCategory = state.forumCategories[0]
+        const defaultCategoryId = defaultCategory ? defaultCategory.id : 1
+        
         const testTopic = await apiClient.post('/topics', {
           title: 'Test Topic',
           content: 'Test content',
           author: 'Anonymous',
-          categoryId: 1,
+          categoryId: defaultCategoryId,
           tags: ['test']
         })
         console.log('Topic creation test successful:', testTopic)

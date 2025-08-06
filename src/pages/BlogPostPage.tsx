@@ -44,11 +44,18 @@ const BlogPostPage: React.FC = () => {
       console.log('Creating new topic with data:', topicData) // Debug log
       
       // Test API connection first
-      const { testApiConnection } = useBlogStore.getState()
+      const { testApiConnection, forumCategories } = useBlogStore.getState()
       const isConnected = await testApiConnection()
       
       if (!isConnected) {
         throw new Error('Cannot connect to server. Please check your connection.')
+      }
+      
+      // Find the correct forum category by name from the dynamic forums
+      const targetCategory = forumCategories.find(cat => cat.name === blogPost.forumCategory.name)
+      
+      if (!targetCategory) {
+        throw new Error(`Forum category "${blogPost.forumCategory.name}" not found in backend`)
       }
       
       const newTopic = {
@@ -70,7 +77,8 @@ const BlogPostPage: React.FC = () => {
       }
 
       console.log('New topic object:', newTopic) // Debug log
-      await addTopicToCategory(blogPost.forumCategory.id, newTopic)
+      console.log('Using forum category ID:', targetCategory.id) // Debug log
+      await addTopicToCategory(targetCategory.id, newTopic)
       setShowTopicForm(false)
       toast.success('נושא חדש נוצר בהצלחה!')
     } catch (error: any) {
