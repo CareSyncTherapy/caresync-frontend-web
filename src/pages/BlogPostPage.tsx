@@ -5,6 +5,7 @@ import { FileText, Calendar, User, Tag, MessageSquare,
 import { useBlogStore } from '@store/blogStore'
 import TopicForm from '@components/UI/TopicForm'
 import toast from 'react-hot-toast'
+import { formatRelativeTime } from '../utils/dateUtils'
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -36,6 +37,14 @@ const BlogPostPage: React.FC = () => {
   const handleAddTopic = async (topicData: { title: string; content: string; tags: string[] }) => {
     try {
       console.log('Creating new topic with data:', topicData) // Debug log
+      
+      // Test API connection first
+      const { testApiConnection } = useBlogStore.getState()
+      const isConnected = await testApiConnection()
+      
+      if (!isConnected) {
+        throw new Error('Cannot connect to server. Please check your connection.')
+      }
       
       const newTopic = {
         id: Date.now(),
@@ -163,12 +172,12 @@ const BlogPostPage: React.FC = () => {
                     <div className="flex items-center text-sm text-gray-500 mb-3 font-hebrew-ui">
                       <span>מאת {topic.author}</span>
                       <span className="mx-2">•</span>
-                      <span>{topic.lastActivity}</span>
+                      <span>{formatRelativeTime(topic.date)}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500 font-hebrew-ui">
                       <MessageSquare className="w-4 h-4 mr-1" />
                       <span className="mr-4">{topic.replies} תגובות</span>
-                      <span>{topic.views} צפיות</span>
+                      <span className="mr-4">{topic.views} צפיות</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 mr-4">
@@ -191,7 +200,7 @@ const BlogPostPage: React.FC = () => {
                             {post.author}
                           </span>
                           <span className="text-sm text-gray-500 font-hebrew-ui">
-                            {post.date}
+                            {formatRelativeTime(post.date)}
                           </span>
                         </div>
                         <p className="text-gray-700 font-hebrew-ui">{post.content}</p>

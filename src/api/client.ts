@@ -16,12 +16,18 @@
  * Version: 1.0.0
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import toast from 'react-hot-toast'
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const API_TIMEOUT = 30000 // 30 seconds
+
+console.log('API Configuration:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  API_BASE_URL,
+  API_TIMEOUT
+})
 
 /**
  * Create axios instance with default configuration
@@ -39,7 +45,7 @@ const api: AxiosInstance = axios.create({
  * Adds authentication token and logging
  */
 api.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     // Add authentication token if available
     const token = localStorage.getItem('caresync_token')
     if (token && config.headers) {
@@ -49,12 +55,24 @@ api.interceptors.request.use(
     // Log request (development only)
     if (import.meta.env.DEV) {
       console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`)
+      console.log('Request config:', {
+        baseURL: config.baseURL,
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        data: config.data
+      })
     }
     
     return config
   },
   (error) => {
     console.error('❌ Request Error:', error)
+    console.error('Request error details:', {
+      message: error.message,
+      code: error.code,
+      config: error.config
+    })
     return Promise.reject(error)
   }
 )
