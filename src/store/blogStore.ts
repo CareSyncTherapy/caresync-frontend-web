@@ -22,6 +22,7 @@ interface BlogStore {
   fetchTopics: () => Promise<void>
   fetchPosts: (topicId: number) => Promise<void>
   clearError: () => void
+  testApiConnection: () => Promise<boolean>
 }
 
 
@@ -54,7 +55,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             title: 'איך להתמודד עם חרדה חברתית?',
             content: 'אני מתקשה מאוד במצבים חברתיים. האם יש למישהו טיפים שיכולים לעזור?',
             author: 'משתמש אנונימי',
-            date: '15 בינואר 2025',
+            date: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
             tags: ['חרדה', 'חברתי', 'טיפים'],
             replies: 2,
             views: 45,
@@ -66,7 +67,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 1,
                 content: 'אני ממליץ על טכניקות נשימה. נסה לנשום עמוק 4 שניות, להחזיק 4 שניות, ולשחרר 6 שניות.',
                 author: 'ד"ר כהן',
-                date: '15 בינואר 2025',
+                date: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25 minutes ago
                 topicId: 1,
                 upvotes: 5,
                 downvotes: 0
@@ -75,7 +76,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 2,
                 content: 'תרגול חשיפה הדרגתית עזר לי מאוד. התחל במצבים קטנים ובנה את הביטחון שלך.',
                 author: 'משתמש אנונימי',
-                date: '15 בינואר 2025',
+                date: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
                 topicId: 1,
                 upvotes: 3,
                 downvotes: 0
@@ -114,7 +115,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             title: 'איזה טכניקות הרגעה עובדות הכי טוב?',
             content: 'אני מחפש טכניקות הרגעה יעילות למתח יומיומי. מה עובד אצלכם?',
             author: 'משתמש אנונימי',
-            date: '14 בינואר 2025',
+            date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
             tags: ['הרגעה', 'מתח', 'טכניקות'],
             replies: 2,
             views: 32,
@@ -126,7 +127,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 3,
                 content: 'מדיטציה מודרכת עובדת אצלי הכי טוב. יש הרבה אפליקציות טובות.',
                 author: 'משתמש אנונימי',
-                date: '14 בינואר 2025',
+                date: new Date(Date.now() - 90 * 60 * 1000).toISOString(), // 90 minutes ago
                 topicId: 2,
                 upvotes: 4,
                 downvotes: 0
@@ -135,7 +136,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 4,
                 content: 'תרגילי נשימה פשוטים עוזרים לי מאוד. נסה 4-7-8: שאיפה ל-4, החזקה ל-7, נשיפה ל-8.',
                 author: 'ד"ר לוי',
-                date: '14 בינואר 2025',
+                date: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 60 minutes ago
                 topicId: 2,
                 upvotes: 6,
                 downvotes: 0
@@ -174,7 +175,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             title: 'איך לשפר תקשורת בזוגיות?',
             content: 'אני מרגיש שיש בעיות תקשורת ביחסים שלי. איך אפשר לשפר את זה?',
             author: 'משתמש אנונימי',
-            date: '13 בינואר 2025',
+            date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
             tags: ['יחסים', 'תקשורת', 'זוגיות'],
             replies: 2,
             views: 28,
@@ -186,7 +187,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 5,
                 content: 'תקשורת פתוחה וכנה היא המפתח. נסה לדבר על הרגשות שלך במקום להאשים.',
                 author: 'ד"ר אברהם',
-                date: '13 בינואר 2025',
+                date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
                 topicId: 3,
                 upvotes: 7,
                 downvotes: 0
@@ -195,7 +196,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 6,
                 content: 'טכניקת "אני מרגיש" עוזרת מאוד. במקום "אתה תמיד..." תגיד "אני מרגיש כש..."',
                 author: 'משתמש אנונימי',
-                date: '13 בינואר 2025',
+                date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
                 topicId: 3,
                 upvotes: 5,
                 downvotes: 0
@@ -234,7 +235,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             title: 'איך לבנות קהילה תומכת?',
             content: 'אני רוצה ליצור מרחב בטוח לתמיכה הדדית. מה הדרך הטובה ביותר?',
             author: 'משתמש אנונימי',
-            date: '12 בינואר 2025',
+            date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
             tags: ['תמיכה', 'קהילה', 'בטיחות'],
             replies: 2,
             views: 19,
@@ -246,7 +247,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 7,
                 content: 'התחיל בקבוצה קטנה של אנשים שאתה סומך עליהם. בנה אמון הדרגתי.',
                 author: 'ד"ר כהן',
-                date: '12 בינואר 2025',
+                date: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(), // 23 hours ago
                 topicId: 4,
                 upvotes: 8,
                 downvotes: 0
@@ -255,7 +256,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
                 id: 8,
                 content: 'כללי התנהגות ברורים חשובים מאוד. הגדר גבולות וצפי שהם יישמרו.',
                 author: 'משתמש אנונימי',
-                date: '12 בינואר 2025',
+                date: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(), // 22 hours ago
                 topicId: 4,
                 upvotes: 4,
                 downvotes: 0
@@ -357,15 +358,28 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         set({ isLoading: true, error: null })
         
-        // API call to create topic
-        const response = await apiClient.post('/topics', {
+        console.log('Creating topic with data:', {
           title: topic.title,
           content: topic.content,
           author: topic.author,
           categoryId: categoryId,
           tags: topic.tags
         })
+        
+        // API call to create topic with simpler data format
+        const topicData = {
+          title: topic.title,
+          content: topic.content,
+          author: topic.author,
+          categoryId: categoryId,
+          tags: topic.tags || []
+        }
+        
+        console.log('Sending topic data:', topicData)
+        
+        const response = await apiClient.post('/topics', topicData)
 
+        console.log('Topic created successfully:', response)
         const createdTopic = response
 
         // Update local state
@@ -405,7 +419,21 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           }
         })
       } catch (error: any) {
-        const errorMessage = error.response?.data?.error || 'Failed to create topic'
+        console.error('Error creating topic:', error)
+        
+        let errorMessage = 'Failed to create topic'
+        
+        if (error.response) {
+          // Server responded with error status
+          errorMessage = error.response.data?.error || `Server error: ${error.response.status}`
+        } else if (error.request) {
+          // Network error - no response received
+          errorMessage = 'Network error. Please check your connection and try again.'
+        } else {
+          // Other error
+          errorMessage = error.message || 'An unexpected error occurred'
+        }
+        
         set({ 
           isLoading: false, 
           error: errorMessage 
@@ -714,6 +742,36 @@ export const useBlogStore = create<BlogStore>((set, get) => {
 
     clearError: () => {
       set({ error: null })
+    },
+
+    testApiConnection: async () => {
+      try {
+        console.log('Testing API connection...')
+        const response = await apiClient.get('/topics')
+        console.log('API connection successful:', response.length, 'topics found')
+        
+        // Test creating a simple topic
+        console.log('Testing topic creation...')
+        const testTopic = await apiClient.post('/topics', {
+          title: 'Test Topic',
+          content: 'Test content',
+          author: 'Anonymous',
+          categoryId: 1,
+          tags: ['test']
+        })
+        console.log('Topic creation test successful:', testTopic)
+        
+        return true
+      } catch (error: any) {
+        console.error('API connection failed:', error)
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: error.config
+        })
+        return false
+      }
     }
   }
 })

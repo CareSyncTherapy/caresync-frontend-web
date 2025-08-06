@@ -4,6 +4,7 @@ import { ArrowUp, ArrowDown, MessageSquare, Eye, Calendar,
          User, Tag, ArrowRight, Heart } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
 import toast from 'react-hot-toast'
+import { formatRelativeTime } from '../utils/dateUtils'
 
 const TopicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -105,7 +106,7 @@ const TopicPage: React.FC = () => {
                 <span>מאת {topic.author}</span>
                 <span className="mx-2">•</span>
                 <Calendar className="w-4 h-4 mr-1" />
-                <span>{topic.date}</span>
+                <span>{formatRelativeTime(topic.date)}</span>
                 <span className="mx-2">•</span>
                 <Eye className="w-4 h-4 mr-1" />
                 <span>{topic.views} צפיות</span>
@@ -225,7 +226,7 @@ const TopicPage: React.FC = () => {
                         <span className="font-medium text-gray-900">{post.author}</span>
                         <span className="mx-2">•</span>
                         <Calendar className="w-4 h-4 mr-1" />
-                        <span>{post.date}</span>
+                        <span>{formatRelativeTime(post.date)}</span>
                       </div>
                     </div>
                     <div className="prose prose-lg max-w-none font-hebrew-ui text-gray-700">

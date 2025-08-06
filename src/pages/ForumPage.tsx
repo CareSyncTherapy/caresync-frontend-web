@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Users, TrendingUp, Clock, Heart, MessageCircle } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
+import { formatRelativeTime } from '../utils/dateUtils'
 
 const ForumPage: React.FC = () => {
   const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics, fetchTopics, isLoading, error } = useBlogStore()
@@ -151,13 +152,7 @@ const ForumPage: React.FC = () => {
                         <span className="mr-4">{topic.replies} תגובות</span>
                         <span className="mr-4">{topic.views} צפיות</span>
                         <Clock className="w-4 h-4 mr-1" />
-                        <span>{new Date(topic.date).toLocaleDateString('he-IL', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}</span>
+                        <span>{formatRelativeTime(topic.date)}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 mr-4">
