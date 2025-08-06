@@ -19,10 +19,11 @@ interface BlogStore {
   calculateCategoryStats: (categoryId: number) => { totalTopics: number; totalPosts: number }
   getTotalStats: () => { totalTopics: number; totalPosts: number; totalMembers: number; newTopics: number }
   getRecentTopics: () => Topic[]
-  fetchTopics: () => Promise<void>
-  fetchPosts: (topicId: number) => Promise<void>
-  
-  clearError: () => void
+      fetchTopics: () => Promise<void>
+    fetchPosts: (topicId: number) => Promise<void>
+    fetchForums: () => Promise<void>
+    
+    clearError: () => void
   testApiConnection: () => Promise<boolean>
   initializeStore: () => Promise<void>
 }
@@ -43,10 +44,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '5 דקות קריאה',
         slug: 'how-to-deal-with-social-anxiety',
         forumCategory: {
-          id: 0,
-          name: 'חרדה ודיכאון',
-          description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
-          icon: '😰',
+          id: 1,
+          name: 'Test Integration Forum',
+          description: 'Forum for testing PostgreSQL integration',
+          icon: '🧪',
           topics: [],
           totalPosts: 0,
           totalTopics: 0
@@ -66,10 +67,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '4 דקות קריאה',
         slug: 'relaxation-techniques-for-daily-stress',
         forumCategory: {
-          id: 0,
-          name: 'טכניקות הרגעה',
-          description: 'שיטות וטכניקות להרגעה וניהול מתח',
-          icon: '🧘‍♀️',
+          id: 19,
+          name: 'Critical Test Forum',
+          description: 'Test forum for critical functionality',
+          icon: '⚠️',
           topics: [],
           totalPosts: 0,
           totalTopics: 0
@@ -89,10 +90,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '6 דקות קריאה',
         slug: 'building-healthy-relationships',
         forumCategory: {
-          id: 0,
-          name: 'יחסים ומשפחה',
-          description: 'דיונים על יחסים, משפחה וקשרים בין-אישיים',
-          icon: '👨‍👩‍👧‍👦',
+          id: 20,
+          name: 'Critical Test Forum',
+          description: 'Test forum for critical functionality',
+          icon: '⚠️',
           topics: [],
           totalPosts: 0,
           totalTopics: 0
@@ -112,10 +113,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         readTime: '3 דקות קריאה',
         slug: 'mutual-support-in-community',
         forumCategory: {
-          id: 0,
-          name: 'תמיכה הדדית',
-          description: 'מרחב לתמיכה הדדית ושיתוף חוויות',
-          icon: '🤝',
+          id: 1,
+          name: 'Test Integration Forum',
+          description: 'Forum for testing PostgreSQL integration',
+          icon: '🧪',
           topics: [],
           totalPosts: 0,
           totalTopics: 0
@@ -137,12 +138,11 @@ export const useBlogStore = create<BlogStore>((set, get) => {
   // Helper function to get forum icon based on name
   const getForumIcon = (forumName: string): string => {
     const iconMap: { [key: string]: string } = {
-      'חרדה ודיכאון': '😰',
-      'טכניקות הרגעה': '🧘‍♀️',
-      'יחסים ומשפחה': '👨‍👩‍👧‍👦',
-      'תמיכה הדדית': '🤝',
-      'General': '💬',
-      'Test Integration Forum': '🧪'
+      'Test Integration Forum': '🧪',
+      'Critical Test Forum': '⚠️',
+      'Anonymous Test Forum': '👤',
+      'Test Forum': '📝',
+      'General': '💬'
     }
     return iconMap[forumName] || '💬'
   }
@@ -153,11 +153,104 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     isLoading: false,
     error: null,
 
+    fetchForums: async () => {
+      try {
+        set({ isLoading: true, error: null })
+        
+        console.log('Fetching forums from backend...')
+        
+        // Try to fetch forums from backend
+        let response
+        try {
+          response = await apiClient.get('/forums')
+          console.log('Forums response:', response)
+        } catch (forumError: any) {
+          console.warn('Forums endpoint not available, using fallback categories')
+          
+          // Fallback to hardcoded categories if forums endpoint doesn't exist
+          const fallbackForums: ForumCategory[] = [
+            {
+              id: 34,
+              name: 'חרדה ודיכאון',
+              description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
+              icon: '😰',
+              topics: [],
+              totalPosts: 0,
+              totalTopics: 0
+            },
+            {
+              id: 35,
+              name: 'טכניקות הרגעה',
+              description: 'שיטות וטכניקות להרגעה וניהול מתח',
+              icon: '🧘‍♀️',
+              topics: [],
+              totalPosts: 0,
+              totalTopics: 0
+            }
+          ]
+          
+          set({
+            forumCategories: fallbackForums,
+            isLoading: false
+          })
+          return
+        }
+        
+        // Check if response is an array or has forums property
+        if (!Array.isArray(response)) {
+          console.warn('Forums response is not an array:', response)
+          
+          // If response is an object with forums property, use that
+          if (response && typeof response === 'object' && response.forums) {
+            response = response.forums
+            console.log('Extracted forums from response:', response)
+          } else {
+            // Fallback to empty array if no forums available
+            const fallbackForums: ForumCategory[] = []
+            
+            set({
+              forumCategories: fallbackForums,
+              isLoading: false
+            })
+            return
+          }
+        }
+        
+        // Transform backend forums to frontend format
+        const transformedForums: ForumCategory[] = response.map((forum: any) => ({
+          id: forum.id,
+          name: forum.name,
+          description: forum.description || '',
+          icon: getForumIcon(forum.name),
+          topics: [],
+          totalPosts: 0,
+          totalTopics: 0
+        }))
+
+        console.log('Transformed forums:', transformedForums)
+        
+        set({
+          forumCategories: transformedForums,
+          isLoading: false
+        })
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.error || 'Failed to fetch forums'
+        set({ 
+          isLoading: false, 
+          error: errorMessage 
+        })
+        console.error('Error fetching forums:', error)
+      }
+    },
+
     initializeStore: async () => {
       try {
         set({ isLoading: true, error: null })
         
-        // Fetch topics from backend
+        // First fetch forums to get dynamic categories
+        await get().fetchForums()
+        
+        // Then fetch topics from backend
         let response
         try {
           response = await apiClient.get('/topics')
@@ -192,14 +285,36 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           slug: topic.slug || `topic-${topic.id}`
         }))
 
-        // Group topics by category
+        // Group topics by category with dynamic mapping
         const categoryMap = new Map()
+        console.log('Starting category mapping...')
+        console.log('Available forum categories:', get().forumCategories.map(c => c.name))
+        
         transformedTopics.forEach((topic: any) => {
-          const categoryName = topic.category
-          if (!categoryMap.has(categoryName)) {
-            categoryMap.set(categoryName, [])
+          const backendCategoryName = topic.category
+          console.log(`Processing topic ${topic.id} with category: ${backendCategoryName}`)
+          
+          // Map backend category names to frontend category names
+          let frontendCategoryName = backendCategoryName
+          
+          // Use the backend category name directly - no mapping needed
+          // The backend now returns actual forum names, so we can use them directly
+          frontendCategoryName = backendCategoryName
+          console.log(`Using backend category: ${backendCategoryName}`)
+          
+          if (!categoryMap.has(frontendCategoryName)) {
+            categoryMap.set(frontendCategoryName, [])
           }
-          categoryMap.get(categoryName).push(topic)
+          categoryMap.get(frontendCategoryName).push(topic)
+        })
+        
+        console.log('🔍 Store Debug:')
+        console.log('transformedTopics:', transformedTopics)
+        console.log('categoryMap:', categoryMap)
+        console.log('categoryMap keys:', Array.from(categoryMap.keys()))
+        console.log('Final categoryMap entries:')
+        categoryMap.forEach((topics, category) => {
+          console.log(`  ${category}: ${topics.length} topics`)
         })
 
         // Update blog posts and forum categories with backend topics
@@ -218,6 +333,7 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           // Also update forum categories with the same topics
           const updatedForumCategories = state.forumCategories.map(category => {
             const backendTopics = categoryMap.get(category.name) || []
+            console.log(`Updating category ${category.name} with ${backendTopics.length} topics`)
             return {
               ...category,
               topics: backendTopics,
