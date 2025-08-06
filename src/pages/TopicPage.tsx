@@ -1,15 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowUp, ArrowDown, MessageSquare, Eye, Calendar, 
          User, Tag, ArrowRight, Heart } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
+import toast from 'react-hot-toast'
 
 const TopicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { getTopicBySlug, addPostToTopic, voteOnTopic, voteOnPost } = useBlogStore()
+  const { getTopicBySlug, addPostToTopic, voteOnTopic, voteOnPost, fetchPosts, isLoading, error } = useBlogStore()
   const [newPostContent, setNewPostContent] = useState('')
 
   const topic = slug ? getTopicBySlug(slug) : undefined
+
+  // Fetch posts for this topic when component mounts
+  useEffect(() => {
+    if (topic) {
+      fetchPosts(topic.id).catch(console.error)
+    }
+  }, [topic, fetchPosts])
 
   if (!topic) {
     return (
@@ -29,29 +37,47 @@ const TopicPage: React.FC = () => {
     )
   }
 
-  const handleAddPost = () => {
+  const handleAddPost = async () => {
     if (!newPostContent.trim()) return
 
-    const newPost = {
-      id: Date.now(),
-      content: newPostContent,
-      author: 'משתמש אנונימי',
-      date: new Date().toLocaleDateString('he-IL'),
-      topicId: topic.id,
-      upvotes: 0,
-      downvotes: 0
+    try {
+      const newPost = {
+        id: Date.now(),
+        content: newPostContent,
+        author: 'משתמש אנונימי',
+        date: new Date().toLocaleDateString('he-IL'),
+        topicId: topic.id,
+        upvotes: 0,
+        downvotes: 0
+      }
+
+      await addPostToTopic(topic.id, newPost)
+      setNewPostContent('')
+      toast.success('תגובה נוספה בהצלחה!')
+    } catch (error: any) {
+      console.error('Error creating post:', error)
+      toast.error(error.message || 'שגיאה בהוספת התגובה')
     }
-
-    addPostToTopic(topic.id, newPost)
-    setNewPostContent('')
   }
 
-  const handleVoteTopic = (isUpvote: boolean) => {
-    voteOnTopic(topic.id, isUpvote)
+  const handleVoteTopic = async (isUpvote: boolean) => {
+    try {
+      await voteOnTopic(topic.id, isUpvote)
+      toast.success(isUpvote ? 'הצבעה חיובית נרשמה!' : 'הצבעה שלילית נרשמה!')
+    } catch (error: any) {
+      console.error('Error voting on topic:', error)
+      toast.error(error.message || 'שגיאה בהצבעה')
+    }
   }
 
-  const handleVotePost = (postId: number, isUpvote: boolean) => {
-    voteOnPost(postId, isUpvote)
+  const handleVotePost = async (postId: number, isUpvote: boolean) => {
+    try {
+      await voteOnPost(postId, isUpvote)
+      toast.success(isUpvote ? 'הצבעה חיובית נרשמה!' : 'הצבעה שלילית נרשמה!')
+    } catch (error: any) {
+      console.error('Error voting on post:', error)
+      toast.error(error.message || 'שגיאה בהצבעה')
+    }
   }
 
   return (
@@ -156,12 +182,17 @@ const TopicPage: React.FC = () => {
             </span>
             <button
               onClick={handleAddPost}
-              disabled={!newPostContent.trim()}
+              disabled={!newPostContent.trim() || isLoading}
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-hebrew-ui font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              שלח תגובה
+              {isLoading ? 'טוען...' : 'שלח תגובה'}
             </button>
           </div>
+          {error && (
+            <div className="mt-4 text-center text-red-600 font-hebrew-ui">
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Replies */}

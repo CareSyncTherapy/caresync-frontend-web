@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Users, TrendingUp, Clock, Heart, MessageCircle } from 'lucide-react'
 import { useBlogStore } from '@store/blogStore'
 
 const ForumPage: React.FC = () => {
-  const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics } = useBlogStore()
+  const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics, fetchTopics, isLoading, error } = useBlogStore()
   const totalStats = getTotalStats()
   const recentTopics = getRecentTopics()
 
+  useEffect(() => {
+    // Load forum data from backend on component mount
+    fetchTopics().catch(console.error)
+  }, [fetchTopics])
 
 
   return (
@@ -25,6 +29,21 @@ const ForumPage: React.FC = () => {
             מרחב בטוח לשיתוף, תמיכה הדדית ודיונים על בריאות הנפש
           </p>
         </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p className="mt-2 text-gray-600 font-hebrew-ui">טוען נתונים...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-800 font-hebrew-ui">{error}</p>
+          </div>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
