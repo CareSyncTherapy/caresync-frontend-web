@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { FileText, Calendar, User, Tag, MessageSquare, 
          TrendingUp, Clock, Heart, ArrowRight, Plus } from 'lucide-react'
@@ -9,12 +9,17 @@ import { formatRelativeTime } from '../utils/dateUtils'
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { getBlogPostBySlug, addTopicToCategory, addPostToTopic, isLoading, error } = useBlogStore()
+  const { getBlogPostBySlug, addTopicToCategory, addPostToTopic, initializeStore, isLoading, error } = useBlogStore()
   const [showTopicForm, setShowTopicForm] = useState(false)
   const [newPostContent, setNewPostContent] = useState('')
   const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null)
 
   const blogPost = slug ? getBlogPostBySlug(slug) : undefined
+
+  useEffect(() => {
+    // Load forum data from backend on component mount
+    initializeStore().catch(console.error)
+  }, [initializeStore])
 
   if (!blogPost) {
     return (
