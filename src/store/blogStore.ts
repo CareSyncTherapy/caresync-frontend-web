@@ -23,6 +23,7 @@ interface BlogStore {
   fetchPosts: (topicId: number) => Promise<void>
   clearError: () => void
   testApiConnection: () => Promise<boolean>
+  initializeStore: () => Promise<void>
 }
 
 
@@ -49,46 +50,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           totalPosts: 0,
           totalTopics: 0
         },
-        topics: [
-          {
-            id: 1,
-            title: 'איך להתמודד עם חרדה חברתית?',
-            content: 'אני מתקשה מאוד במצבים חברתיים. האם יש למישהו טיפים שיכולים לעזור?',
-            author: 'משתמש אנונימי',
-            date: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-            tags: ['חרדה', 'חברתי', 'טיפים'],
-            replies: 2,
-            views: 45,
-            lastActivity: 'עכשיו',
-            category: 'חרדה ודיכאון',
-            isHot: true,
-            posts: [
-              {
-                id: 1,
-                content: 'אני ממליץ על טכניקות נשימה. נסה לנשום עמוק 4 שניות, להחזיק 4 שניות, ולשחרר 6 שניות.',
-                author: 'ד"ר כהן',
-                date: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25 minutes ago
-                topicId: 1,
-                upvotes: 5,
-                downvotes: 0
-              },
-              {
-                id: 2,
-                content: 'תרגול חשיפה הדרגתית עזר לי מאוד. התחל במצבים קטנים ובנה את הביטחון שלך.',
-                author: 'משתמש אנונימי',
-                date: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
-                topicId: 1,
-                upvotes: 3,
-                downvotes: 0
-              }
-            ],
-            upvotes: 8,
-            downvotes: 0,
-            slug: 'how-to-deal-with-social-anxiety'
-          }
-        ],
-        totalTopics: 1,
-        totalPosts: 2
+        topics: [],
+        totalTopics: 0,
+        totalPosts: 0
       },
       {
         id: 2,
@@ -109,46 +73,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           totalPosts: 0,
           totalTopics: 0
         },
-        topics: [
-          {
-            id: 2,
-            title: 'איזה טכניקות הרגעה עובדות הכי טוב?',
-            content: 'אני מחפש טכניקות הרגעה יעילות למתח יומיומי. מה עובד אצלכם?',
-            author: 'משתמש אנונימי',
-            date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-            tags: ['הרגעה', 'מתח', 'טכניקות'],
-            replies: 2,
-            views: 32,
-            lastActivity: 'לפני שעה',
-            category: 'טכניקות הרגעה',
-            isHot: false,
-            posts: [
-              {
-                id: 3,
-                content: 'מדיטציה מודרכת עובדת אצלי הכי טוב. יש הרבה אפליקציות טובות.',
-                author: 'משתמש אנונימי',
-                date: new Date(Date.now() - 90 * 60 * 1000).toISOString(), // 90 minutes ago
-                topicId: 2,
-                upvotes: 4,
-                downvotes: 0
-              },
-              {
-                id: 4,
-                content: 'תרגילי נשימה פשוטים עוזרים לי מאוד. נסה 4-7-8: שאיפה ל-4, החזקה ל-7, נשיפה ל-8.',
-                author: 'ד"ר לוי',
-                date: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 60 minutes ago
-                topicId: 2,
-                upvotes: 6,
-                downvotes: 0
-              }
-            ],
-            upvotes: 6,
-            downvotes: 0,
-            slug: 'which-relaxation-techniques-work-best'
-          }
-        ],
-        totalTopics: 1,
-        totalPosts: 2
+        topics: [],
+        totalTopics: 0,
+        totalPosts: 0
       },
       {
         id: 3,
@@ -169,46 +96,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           totalPosts: 0,
           totalTopics: 0
         },
-        topics: [
-          {
-            id: 3,
-            title: 'איך לשפר תקשורת בזוגיות?',
-            content: 'אני מרגיש שיש בעיות תקשורת ביחסים שלי. איך אפשר לשפר את זה?',
-            author: 'משתמש אנונימי',
-            date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-            tags: ['יחסים', 'תקשורת', 'זוגיות'],
-            replies: 2,
-            views: 28,
-            lastActivity: 'לפני 3 שעות',
-            category: 'יחסים ומשפחה',
-            isHot: false,
-            posts: [
-              {
-                id: 5,
-                content: 'תקשורת פתוחה וכנה היא המפתח. נסה לדבר על הרגשות שלך במקום להאשים.',
-                author: 'ד"ר אברהם',
-                date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-                topicId: 3,
-                upvotes: 7,
-                downvotes: 0
-              },
-              {
-                id: 6,
-                content: 'טכניקת "אני מרגיש" עוזרת מאוד. במקום "אתה תמיד..." תגיד "אני מרגיש כש..."',
-                author: 'משתמש אנונימי',
-                date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-                topicId: 3,
-                upvotes: 5,
-                downvotes: 0
-              }
-            ],
-            upvotes: 12,
-            downvotes: 0,
-            slug: 'how-to-improve-communication-in-relationships'
-          }
-        ],
-        totalTopics: 1,
-        totalPosts: 2
+        topics: [],
+        totalTopics: 0,
+        totalPosts: 0
       },
       {
         id: 4,
@@ -229,46 +119,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           totalPosts: 0,
           totalTopics: 0
         },
-        topics: [
-          {
-            id: 4,
-            title: 'איך לבנות קהילה תומכת?',
-            content: 'אני רוצה ליצור מרחב בטוח לתמיכה הדדית. מה הדרך הטובה ביותר?',
-            author: 'משתמש אנונימי',
-            date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-            tags: ['תמיכה', 'קהילה', 'בטיחות'],
-            replies: 2,
-            views: 19,
-            lastActivity: 'לפני יום',
-            category: 'תמיכה הדדית',
-            isHot: false,
-            posts: [
-              {
-                id: 7,
-                content: 'התחיל בקבוצה קטנה של אנשים שאתה סומך עליהם. בנה אמון הדרגתי.',
-                author: 'ד"ר כהן',
-                date: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(), // 23 hours ago
-                topicId: 4,
-                upvotes: 8,
-                downvotes: 0
-              },
-              {
-                id: 8,
-                content: 'כללי התנהגות ברורים חשובים מאוד. הגדר גבולות וצפי שהם יישמרו.',
-                author: 'משתמש אנונימי',
-                date: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(), // 22 hours ago
-                topicId: 4,
-                upvotes: 4,
-                downvotes: 0
-              }
-            ],
-            upvotes: 15,
-            downvotes: 0,
-            slug: 'how-to-build-supportive-community'
-          }
-        ],
-        totalTopics: 1,
-        totalPosts: 2
+        topics: [],
+        totalTopics: 0,
+        totalPosts: 0
       }
     ]
 
@@ -280,8 +133,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         description: 'שיתוף חוויות וטיפים להתמודדות עם חרדה ודיכאון',
         icon: '😰',
         topics: [],
-        totalPosts: 2,
-        totalTopics: 1
+        totalPosts: 0,
+        totalTopics: 0
       },
       {
         id: 2,
@@ -289,8 +142,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         description: 'שיטות וטכניקות להרגעה וניהול מתח',
         icon: '🧘‍♀️',
         topics: [],
-        totalPosts: 2,
-        totalTopics: 1
+        totalPosts: 0,
+        totalTopics: 0
       },
       {
         id: 3,
@@ -298,8 +151,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         description: 'דיונים על יחסים, משפחה וקשרים בין-אישיים',
         icon: '👨‍👩‍👧‍👦',
         topics: [],
-        totalPosts: 2,
-        totalTopics: 1
+        totalPosts: 0,
+        totalTopics: 0
       },
       {
         id: 4,
@@ -307,20 +160,10 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         description: 'מרחב לתמיכה הדדית ושיתוף חוויות',
         icon: '🤝',
         topics: [],
-        totalPosts: 2,
-        totalTopics: 1
+        totalPosts: 0,
+        totalTopics: 0
       }
     ]
-
-    // Update forum categories with counts from blog posts
-    blogPosts.forEach(post => {
-      const category = forumCategories.find(cat => cat.id === post.forumCategory.id)
-      if (category) {
-        category.totalTopics = post.topics.length
-        category.totalPosts = post.topics.reduce((sum, topic) => 
-          sum + topic.posts.length, 0)
-      }
-    })
 
     return { blogPosts, forumCategories }
   }
@@ -332,6 +175,91 @@ export const useBlogStore = create<BlogStore>((set, get) => {
     forumCategories,
     isLoading: false,
     error: null,
+
+    initializeStore: async () => {
+      try {
+        set({ isLoading: true, error: null })
+        
+        // Fetch topics from backend
+        const response = await apiClient.get('/topics')
+        
+        // Transform the backend response to match our frontend format
+        const transformedTopics = response.map((topic: any) => ({
+          id: topic.id,
+          title: topic.title,
+          content: topic.content,
+          author: topic.author,
+          date: topic.date,
+          tags: topic.tags || [],
+          replies: topic.replies || 0,
+          views: topic.views || 0,
+          lastActivity: topic.lastActivity || 'Recently',
+          category: topic.category || 'General',
+          isHot: topic.isHot || false,
+          posts: topic.posts || [],
+          upvotes: topic.upvotes || 0,
+          downvotes: topic.downvotes || 0,
+          slug: topic.slug || `topic-${topic.id}`
+        }))
+
+        // Group topics by category and map backend categories to frontend categories
+        const categoryMap = new Map()
+        transformedTopics.forEach((topic: any) => {
+          // Map backend categories to frontend categories
+          let categoryName = topic.category
+          if (categoryName === 'General') {
+            // Assign general topics to the first category for now
+            categoryName = 'חרדה ודיכאון'
+          }
+          
+          if (!categoryMap.has(categoryName)) {
+            categoryMap.set(categoryName, [])
+          }
+          categoryMap.get(categoryName).push(topic)
+        })
+
+        // Update forum categories with backend data
+        set(state => {
+          const updatedForumCategories = state.forumCategories.map(category => {
+            const backendTopics = categoryMap.get(category.name) || []
+            const totalPosts = backendTopics.reduce((sum: number, topic: any) => 
+              sum + (topic.posts?.length || 0), 0)
+            
+            return {
+              ...category,
+              topics: backendTopics,
+              totalTopics: backendTopics.length,
+              totalPosts: totalPosts
+            }
+          })
+
+          // Update blog posts with backend topics
+          const updatedBlogPosts = state.blogPosts.map(post => {
+            const backendTopics = categoryMap.get(post.forumCategory.name) || []
+            return {
+              ...post,
+              topics: backendTopics,
+              totalTopics: backendTopics.length,
+              totalPosts: backendTopics.reduce((sum: number, topic: any) => 
+                sum + (topic.posts?.length || 0), 0)
+            }
+          })
+
+          return {
+            blogPosts: updatedBlogPosts,
+            forumCategories: updatedForumCategories,
+            isLoading: false
+          }
+        })
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.error || 'Failed to initialize store'
+        set({ 
+          isLoading: false, 
+          error: errorMessage 
+        })
+        console.error('Error initializing store:', error)
+      }
+    },
 
     getBlogPostBySlug: (slug: string) => {
       return get().blogPosts.find(post => post.slug === slug)
@@ -358,11 +286,17 @@ export const useBlogStore = create<BlogStore>((set, get) => {
       try {
         set({ isLoading: true, error: null })
         
+        // Get the category name for the backend
+        const state = get()
+        const category = state.forumCategories.find(cat => cat.id === categoryId)
+        const categoryName = category?.name || 'General'
+        
         console.log('Creating topic with data:', {
           title: topic.title,
           content: topic.content,
           author: topic.author,
           categoryId: categoryId,
+          categoryName: categoryName,
           tags: topic.tags
         })
         
@@ -372,7 +306,9 @@ export const useBlogStore = create<BlogStore>((set, get) => {
           content: topic.content,
           author: topic.author,
           categoryId: categoryId,
-          tags: topic.tags || []
+          category: categoryName,
+          tags: topic.tags || [],
+          userId: 999 // Anonymous user ID
         }
         
         console.log('Sending topic data:', topicData)
@@ -451,7 +387,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
         try {
           response = await apiClient.post(`/topics/${topicId}/posts`, {
             content: post.content,
-            author: post.author
+            author: post.author,
+            userId: 999 // Anonymous user ID
           })
         } catch (postError: any) {
           // If posts endpoint doesn't exist, try creating a reply as a new topic
@@ -461,7 +398,8 @@ export const useBlogStore = create<BlogStore>((set, get) => {
             content: post.content,
             author: post.author,
             categoryId: 1, // Default category
-            tags: ['reply']
+            tags: ['reply'],
+            userId: 999 // Anonymous user ID
           })
         }
 

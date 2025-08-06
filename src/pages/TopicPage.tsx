@@ -8,17 +8,15 @@ import { formatRelativeTime } from '../utils/dateUtils'
 
 const TopicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { getTopicBySlug, addPostToTopic, voteOnTopic, voteOnPost, fetchPosts, isLoading, error } = useBlogStore()
+  const { getTopicBySlug, addPostToTopic, voteOnTopic, voteOnPost, initializeStore, isLoading, error } = useBlogStore()
   const [newPostContent, setNewPostContent] = useState('')
 
   const topic = slug ? getTopicBySlug(slug) : undefined
 
-  // Fetch posts for this topic when component mounts
   useEffect(() => {
-    if (topic) {
-      fetchPosts(topic.id).catch(console.error)
-    }
-  }, [topic, fetchPosts])
+    // Load forum data from backend on component mount
+    initializeStore().catch(console.error)
+  }, [initializeStore])
 
   if (!topic) {
     return (

@@ -5,14 +5,14 @@ import { useBlogStore } from '@store/blogStore'
 import { formatRelativeTime } from '../utils/dateUtils'
 
 const ForumPage: React.FC = () => {
-  const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics, fetchTopics, isLoading, error } = useBlogStore()
+  const { forumCategories, calculateCategoryStats, getTotalStats, getBlogPostByCategoryId, getRecentTopics, initializeStore, isLoading, error } = useBlogStore()
   const totalStats = getTotalStats()
   const recentTopics = getRecentTopics()
 
   useEffect(() => {
     // Load forum data from backend on component mount
-    fetchTopics().catch(console.error)
-  }, [fetchTopics])
+    initializeStore().catch(console.error)
+  }, [initializeStore])
 
 
   return (
